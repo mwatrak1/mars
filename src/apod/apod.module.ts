@@ -3,10 +3,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ApodController } from './apod.controller';
 import { Apod, apodSchema } from './apod.schema';
 import { ApodService } from './apod.service';
-
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Apod.name, schema: apodSchema }]),
+    MongooseModule.forFeature([{ name: Apod.modelName, schema: apodSchema }]),
   ],
   controllers: [ApodController],
   providers: [ApodService],

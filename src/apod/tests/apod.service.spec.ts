@@ -22,7 +22,7 @@ const sampleDateDto: ApodDateDto = {
   date: '2021-06-01',
 };
 
-const mockApodModel = () => ({
+export const mockApodModel = () => ({
   findOne: jest.fn(),
 });
 
@@ -34,12 +34,12 @@ describe('ApodService test', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         ApodService,
-        { provide: getModelToken(Apod.name), useFactory: mockApodModel },
+        { provide: getModelToken(Apod.modelName), useFactory: mockApodModel },
       ],
     }).compile();
 
-    apodService = moduleRef.get(ApodService);
-    apodModel = moduleRef.get(getModelToken(Apod.name));
+    apodService = moduleRef.get(Apod.modelName + 'Service');
+    apodModel = moduleRef.get(Apod.modelName + 'Model');
   });
 
   describe('getApod', () => {
@@ -57,6 +57,7 @@ describe('ApodService test', () => {
 
     it('no APOD found - should throw bad request exception', async () => {
       apodModel.findOne.mockResolvedValue(undefined);
+
       try {
         await apodService.getApod();
         throw new Error('Test failed');
@@ -65,6 +66,7 @@ describe('ApodService test', () => {
         expect(err.response.message).toBe(
           'Sorry the APOD for current date is not available',
         );
+
         expect(err.response.statusCode).toBe(400);
       }
     });

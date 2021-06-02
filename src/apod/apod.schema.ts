@@ -20,32 +20,30 @@ interface ApodModel extends mongoose.Model<ApodDoc> {
   build(attrs: ApodAttrs): ApodDoc;
 }
 
-const apodSchema = new mongoose.Schema(
-  {
-    date: {
-      type: String,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-    explanation: {
-      type: String,
-      required: true,
-    },
-    url: {
-      type: String,
-      required: true,
-    },
-    hdurl: {
-      type: String,
-      required: true,
-    },
+const apodSchema = new mongoose.Schema({
+  date: {
+    type: String,
+    required: true,
+    unique: true,
   },
-  { collection: 'apod' },
-);
+  title: {
+    type: String,
+    required: true,
+  },
+  explanation: {
+    type: String,
+    required: true,
+  },
+  url: {
+    type: String,
+    required: true,
+  },
+  hdurl: {
+    type: String,
+    required: true,
+  },
+});
 
 const Apod = mongoose.model<ApodDoc, ApodModel>('Apod', apodSchema);
 
-export { Apod, ApodDoc, ApodModel, apodSchema };
+export { Apod, ApodAttrs, ApodDoc, ApodModel, apodSchema };
