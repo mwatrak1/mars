@@ -4,7 +4,7 @@ import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { GalleryQueryDto, Rover } from './dto/galleryQueryDto.dto';
 import { Photo, PhotoAttrs, PhotoDoc } from './photo.schema';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { MarsPhoto, PhotosResponse } from './types/photos-response.type';
 @Injectable()
 export class GalleryService {
@@ -12,11 +12,12 @@ export class GalleryService {
     @InjectModel(Photo.modelName) private photoModel: Model<PhotoDoc>,
   ) {}
 
-  @Cron('0 0 12 * * *')
+  @Cron('0 18 21 * * *')
   private async update() {
+    // dane z api sa opoznione o okolo 1 dzien do tylu
     const responses = await this.performRequests();
     for (const response of responses) {
-      this.createPhoto(response);
+      await this.createPhoto(response);
     }
   }
 
@@ -25,8 +26,8 @@ export class GalleryService {
 
     let result = this.photoModel.find(query).limit(10);
 
-    if (galleryQueryDto.date) {
-      result = result.sort({ date: galleryQueryDto.date });
+    if (galleryQueryDto.sortByDate) {
+      result = result.sort({ date: galleryQueryDto.sortByDate });
     }
 
     return result.exec();
@@ -48,23 +49,32 @@ export class GalleryService {
   }
 
   private async performRequests(): Promise<MarsPhoto[]> {
-    const date = new Date();
-    date.setDate(date.getDate() - 1);
-    const dateToday = date.toISOString().slice(0, 10);
+    const dateYesterday = this.getDateYesterday().toISOString().slice(0, 10);
     const photos: MarsPhoto[] = [];
     const rovers = Object.values(Rover);
 
     for (const rover of rovers) {
       for (let i = 1; i < 4; i++) {
         // eslint-disable-next-line prettier/prettier
-        const nasaPhotosUrl = `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?earth_date=${dateToday}&api_key=${process.env.NASA_API_KEY}&page=${i.toString()}`;
-        const response: PhotosResponse = (await axios.get(nasaPhotosUrl)).data;
-        if (response.photos !== []) {
+        const nasaPhotosUrl = `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?earth_date=${dateYesterday}&api_key=${process.env.NASA_API_KEY}&page=${i.toString()}`;
+        const response: PhotosResponse = await this.getRoversPhotos(
+          nasaPhotosUrl,
+        );
+        if (response.photos.length !== 0) {
           response.photos.map((photo: MarsPhoto) => photos.push(photo));
         }
       }
     }
     return photos;
+  }
+
+  private async getRoversPhotos(url: string) {
+    const response = await axios.get(url).catch((error) => {
+      console.log('Error while getting photos for URL:', url);
+      console.error(error);
+      return [];
+    });
+    return (response as AxiosResponse<PhotosResponse>).data;
   }
 
   private buildQuery(galleryQueryDto: GalleryQueryDto) {
@@ -88,5 +98,11 @@ export class GalleryService {
     }
 
     return query;
+  }
+
+  private getDateYesterday() {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    return date;
   }
 }

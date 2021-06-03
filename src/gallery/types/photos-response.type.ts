@@ -8,7 +8,7 @@ export interface MarsPhoto {
   camera: {
     id: number;
     name: string;
-    rover_id: 5;
+    rover_id: number;
     full_name: string;
   };
   img_src: string;

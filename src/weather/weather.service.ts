@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { Weather, WeatherAttrs, WeatherDoc } from './weather.schema';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { MarsWeather, WeatherResponse } from './types/weather-response.type';
 @Injectable()
 export class WeatherService {
@@ -14,7 +14,7 @@ export class WeatherService {
   @Cron('0 0 12 * * *')
   private async update() {
     const response = await this.performRequest();
-    this.createWeathers(response);
+    await this.createWeathers(response);
   }
 
   getWeather() {
@@ -27,7 +27,9 @@ export class WeatherService {
       try {
         (await this.weatherModel.create(weatherObject)).save();
       } catch (error) {
-        console.log('Document already exists');
+        console.log(
+          'Document with given date already exists or there was another error while saving a document',
+        );
       }
     }
   }
@@ -62,6 +64,11 @@ export class WeatherService {
 
   private async performRequest(): Promise<WeatherResponse> {
     const nasaWeatherUrl = `https://mars.nasa.gov/rss/api/?feed=weather&category=mars2020&feedtype=json`;
-    return (await axios.get(nasaWeatherUrl)).data;
+    const response = await axios.get(nasaWeatherUrl).catch((error) => {
+      console.log('Error while getting Weather update');
+      console.error(error);
+      return { sols: [] };
+    });
+    return (response as AxiosResponse<WeatherResponse>).data;
   }
 }

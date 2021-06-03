@@ -19,8 +19,8 @@ export enum Rover {
 }
 
 export enum DateSort {
-  ASCENDING = 'asc',
-  DESCENDING = 'dsc',
+  ASCENDING = '1',
+  DESCENDING = '-1',
 }
 
 export class GalleryQueryDto {
@@ -34,5 +34,5 @@ export class GalleryQueryDto {
 
   @IsOptional()
   @IsEnum(DateSort)
-  date?: DateSort;
+  sortByDate?: DateSort;
 }
