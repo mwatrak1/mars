@@ -12,7 +12,17 @@ import { ScheduleModule } from '@nestjs/schedule';
     ApodModule,
     GalleryModule,
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.DB_HOST),
+    MongooseModule.forRoot(
+      process.env.NODE_ENV === 'test'
+        ? process.env.TEST_DB_HOST
+        : process.env.DB_HOST,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+        useCreateIndex: true,
+      },
+    ),
   ],
   controllers: [],
   providers: [],

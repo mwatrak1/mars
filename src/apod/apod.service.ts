@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
@@ -12,7 +12,7 @@ export class ApodService {
   constructor(@InjectModel(Apod.modelName) private apodModel: Model<ApodDoc>) {}
   // wszystkie zapytania do bazy objac try catch
 
-  @Cron('0 0 20 * * *')
+  @Cron('0 0 12 * * *')
   private async update() {
     const response = await this.performRequest();
     if (response === undefined || response.length === 0) {
@@ -27,7 +27,7 @@ export class ApodService {
     const apod = await this.apodModel.findOne({ date: dateToday });
 
     if (!apod) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'Sorry the APOD for current date is not available',
       );
     }
@@ -37,7 +37,7 @@ export class ApodService {
   async getApodByDate(apodDateDto: ApodDateDto): Promise<ApodDoc> {
     const apod = await this.apodModel.findOne(apodDateDto);
     if (!apod) {
-      throw new BadRequestException('APOD for this date not found');
+      throw new NotFoundException('APOD for this date not found');
     }
     return apod;
   }

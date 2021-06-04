@@ -1,0 +1,50 @@
+export const sampleMarsWeatherDoc = {
+  _id: '60b7e7f0383b2b3d3db37da7',
+  date: '2021-05-20',
+  sol: '89',
+  ls: '48',
+  season: 'mid spring',
+  min_temp: -81.6,
+  max_temp: -20.1,
+  pressure: 758.8,
+  sunrise: '05:40:50',
+  sunset: '18:32:23',
+};
+
+export const sampleMarsWeatherResponse = {
+  sols: [
+    {
+      terrestrial_date: '2021-05-20',
+      sol: '89',
+      ls: '48',
+      season: 'mid spring',
+      min_temp: -81.6,
+      max_temp: -20.1,
+      pressure: 758.8,
+      sunrise: '05:40:50',
+      sunset: '18:32:23',
+    },
+    {
+      terrestrial_date: '2021-05-21',
+      sol: '90',
+      ls: '48',
+      season: 'mid spring',
+      min_temp: -81.8,
+      max_temp: -22.2,
+      pressure: 759.2,
+      sunrise: '05:40:18',
+      sunset: '18:32:16',
+    },
+    {
+      terrestrial_date: '2021-05-22',
+      sol: '91',
+      ls: '49',
+      season: 'mid spring',
+      min_temp: -82.1,
+      max_temp: -22,
+      pressure: 759.4,
+      sunrise: '05:39:47',
+      sunset: '18:32:09',
+    },
+  ],
+};

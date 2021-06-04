@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
@@ -17,8 +17,17 @@ export class WeatherService {
     await this.createWeathers(response);
   }
 
-  getWeather() {
-    return this.weatherModel.find().sort({ date: -1 }).limit(1).exec();
+  async getWeather() {
+    const weather = await this.weatherModel
+      .find()
+      .sort({ date: -1 })
+      .limit(1)
+      .exec();
+
+    if (weather.length === 0) {
+      throw new NotFoundException('Sorry weather is not available');
+    }
+    return weather[0];
   }
 
   private async createWeathers(weatherResponse: WeatherResponse) {

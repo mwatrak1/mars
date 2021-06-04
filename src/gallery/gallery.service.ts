@@ -12,7 +12,7 @@ export class GalleryService {
     @InjectModel(Photo.modelName) private photoModel: Model<PhotoDoc>,
   ) {}
 
-  @Cron('0 18 21 * * *')
+  @Cron('0 0 12 * * *')
   private async update() {
     // dane z api sa opoznione o okolo 1 dzien do tylu
     const responses = await this.performRequests();
