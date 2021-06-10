@@ -18,24 +18,35 @@ interface PhotoModel extends mongoose.Model<PhotoDoc> {
   build(attrs: PhotoAttrs): PhotoDoc;
 }
 
-const photoSchema = new mongoose.Schema({
-  date: {
-    type: Date,
-    required: true,
+const photoSchema = new mongoose.Schema(
+  {
+    date: {
+      type: Date,
+      required: true,
+    },
+    url: {
+      type: String,
+      required: true,
+    },
+    rover: {
+      type: String,
+      required: true,
+    },
+    camera: {
+      type: String,
+      required: true,
+    },
   },
-  url: {
-    type: String,
-    required: true,
+  {
+    toJSON: {
+      transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
   },
-  rover: {
-    type: String,
-    required: true,
-  },
-  camera: {
-    type: String,
-    required: true,
-  },
-});
+);
 
 const Photo = mongoose.model<PhotoDoc, PhotoModel>('Photo', photoSchema);
 

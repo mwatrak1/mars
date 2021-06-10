@@ -87,7 +87,7 @@ describe('E2E tests', () => {
         .get('/apod')
         .expect(200);
       expect(response.body.date).toEqual(newApod.date);
-      expect(response.body._id).toEqual(newApod.id);
+      expect(response.body.id).toEqual(newApod.id);
     });
 
     it('/apod/ - throws NotFoundException - no APOD found (GET)', async () => {
@@ -106,7 +106,7 @@ describe('E2E tests', () => {
       const response = await request(app.getHttpServer())
         .get('/apod/' + date.toISOString().slice(0, 10))
         .expect(200);
-      expect(response.body._id).toEqual(newApod.id);
+      expect(response.body.id).toEqual(newApod.id);
       expect(response.body.date).toEqual(date.toISOString().slice(0, 10));
     });
 
@@ -114,7 +114,9 @@ describe('E2E tests', () => {
       const response = await request(app.getHttpServer())
         .get('/apod/' + 'dfkw02fk20')
         .expect(404);
-      expect(response.body.message).toEqual('APOD for this date not found');
+      expect(response.body.message).toEqual(
+        'Sorry the APOD for given date is not available',
+      );
       expect(response.body.error).toEqual('Not Found');
     });
   });
@@ -206,14 +208,16 @@ describe('E2E tests', () => {
         .expect(200);
 
       expect(response.body.date).toEqual(newWeather.date.toISOString());
-      expect(response.body._id).toEqual(newWeather.id);
+      expect(response.body.id).toEqual(newWeather.id);
     });
 
     it('/weather/ - throws NotFoundWrror - no weather available', async () => {
       const response = await request(app.getHttpServer())
         .get('/weather')
         .expect(404);
-      expect(response.body.message).toEqual('Sorry weather is not available');
+      expect(response.body.message).toEqual(
+        'Sorry, the weather is not available',
+      );
     });
   });
 });

@@ -2,14 +2,12 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { GalleryService } from '../gallery.service';
 import { Photo, PhotoModel } from '../photo.schema';
-import * as mongoose from 'mongoose';
 import {
   Camera,
   DateSort,
   GalleryQueryDto,
   Rover,
 } from '../dto/galleryQueryDto.dto';
-import { sampleMarsPhotos } from './sampleObjects';
 
 const mockPhotoModel = () => ({
   find: jest.fn().mockReturnThis(),
@@ -38,13 +36,13 @@ describe('GalleryService test', () => {
 
   describe('getPhotos test', () => {
     it('should query the DB for max 10 photos given no query filters provided', async () => {
-      jest.spyOn<any, string>(galleryService, 'buildQuery');
+      jest.spyOn<any, string>(galleryService, 'buildFilterQuery');
       const filter: GalleryQueryDto = {};
       await galleryService.getPhotos(filter);
       expect(photoModel.find).toHaveBeenCalled();
       expect(photoModel.limit).toHaveBeenCalled();
       expect(photoModel.exec).toHaveBeenCalled();
-      expect(galleryService['buildQuery']).toHaveReturnedWith({});
+      expect(galleryService['buildFilterQuery']).toHaveReturnedWith({});
     });
 
     it('should query the DB with camera filter only', async () => {
@@ -111,60 +109,6 @@ describe('GalleryService test', () => {
         rover: Rover.Curiosity,
         camera: Camera.FHAZ,
       });
-    });
-  });
-
-  describe('createPhotoTest', () => {
-    it('creates and saves a photo given valid photoResponse data', async () => {
-      await galleryService['createPhoto'](sampleMarsPhotos[0]);
-      expect(photoModel.save).toHaveBeenCalled();
-      expect(photoModel.save).not.toThrow();
-    });
-
-    it('throws an exception given invalid photoResponse data', async () => {
-      photoModel.save.mockImplementation(() => {
-        throw new mongoose.Error('MongooseError');
-      });
-      try {
-        await galleryService['createPhoto'](sampleMarsPhotos[0]);
-      } catch (error) {
-        expect(error).toBeInstanceOf(mongoose.Error);
-        expect(photoModel.save).toThrow(mongoose.Error);
-      }
-    });
-  });
-
-  describe('Gallery update CRON JOB test', () => {
-    it('should create photos in a DB if requests returned an array of photos', async () => {
-      jest
-        .spyOn<any, string>(galleryService, 'performRequests')
-        .mockImplementation(() => sampleMarsPhotos);
-      jest.spyOn<any, string>(galleryService, 'createPhoto');
-      await galleryService['update']();
-      expect(galleryService['createPhoto']).toHaveBeenCalledTimes(
-        sampleMarsPhotos.length,
-      );
-      expect(photoModel.save).toHaveBeenCalledTimes(sampleMarsPhotos.length);
-    });
-
-    it('should not create photos in a DB if requests returned an empty array', async () => {
-      jest
-        .spyOn<any, string>(galleryService, 'performRequests')
-        .mockImplementation(() => []);
-      jest.spyOn<any, string>(galleryService, 'createPhoto');
-      await galleryService['update']();
-      expect(galleryService['createPhoto']).not.toHaveBeenCalled();
-      expect(photoModel.save).not.toHaveBeenCalled();
-    });
-
-    it('should not create photos in a DB if there were any errors while performing request', async () => {
-      jest
-        .spyOn<any, string>(galleryService, 'performRequests')
-        .mockImplementation(() => []);
-      jest.spyOn<any, string>(galleryService, 'createPhoto');
-      await galleryService['update']();
-      expect(galleryService['createPhoto']).not.toHaveBeenCalled();
-      expect(photoModel.save).not.toHaveBeenCalled();
     });
   });
 });

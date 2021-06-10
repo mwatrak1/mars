@@ -4,4 +4,4 @@
 
 ---
 
-Swagger API documentation: https://app.swaggerhub.com/apis/mwatrak1/mars/1.0.3
+Swagger API documentation: https://app.swaggerhub.com/apis/mwatrak1/mars/1.0.5
